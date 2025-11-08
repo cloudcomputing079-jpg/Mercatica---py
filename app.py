@@ -1,126 +1,363 @@
 from flask import Flask, render_template, request, redirect, session, url_for
+from branding_utils import generate_branding_kit
+import sqlite3
 import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key = "f84f02d2d0076d67d294bfece7269ab4a95277ef51429e4ec226c8f09ddbddde"
+application = Flask(__name__)
+application.secret_key = 'f84f02d2d0076d67d294bfece7269ab4a95277ef51429e4ec226c8f09ddbddde'
 
-# Optional: Store your Google API key securely
-GOOGLE_API_KEY = "AIzaSyArNoYwRiCUxgz-VKA8FcMVwRbHojJ3VfI"
+# -------------------- CONTEXT --------------------
+
+@application.context_processor
+def inject_theme():
+    return dict(theme=session.get('theme', 'light'))
+
+# -------------------- GEMINI SETUP --------------------
+
+load_dotenv()
+genai.configure(api_key=os.getenv("AIzaSyArNoYwRiCUxgz-VKA8FcMVwRbHojJ3VfI"))
+
+def extract_section_by_number(text, number):
+    lines = text.split('\n')
+    capture = False
+    result = []
+
+    for line in lines:
+        if line.strip().startswith(f"{number}."):
+            capture = True
+            result.append(line.split(":", 1)[-1].strip())
+        elif capture:
+            if any(line.strip().startswith(f"{i}.") for i in range(1, 10)):
+                break
+            result.append(line.strip())
+
+    return ' '.join(result).strip() if result else "Not found"
+
+def clean_text(text):
+    lines = text.split('\n')
+    cleaned = [line.strip().replace("**", "").replace("#", "") for line in lines if line.strip()]
+    return '\n'.join(cleaned)
+
+# -------------------- DATABASE INIT --------------------
+
+def create_tables():
+    conn = sqlite3.connect('branding.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT UNIQUE,
+            password TEXT
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS branding (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            store_name TEXT,
+            Domain TEXT,
+            tagline TEXT,
+            colors TEXT,
+            logo_ideas TEXT
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS branding_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user TEXT,
+            brand TEXT,
+            domain TEXT,
+            font TEXT,
+            colors TEXT,
+            logo_prompt TEXT,
+            domain_name TEXT,
+            languages TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 # -------------------- ROUTES --------------------
 
-@app.route('/')
+@application.route('/')
 def home():
-    return redirect('/dashboard')
+    return redirect('/login')
 
-@app.route('/dashboard')
+@application.route('/login', methods=['GET', 'POST'])
+def login():
+    message = request.args.get('message')
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if email and password:
+            session['user'] = email
+            return redirect('/dashboard')
+        else:
+            return render_template('login.html', error="Invalid credentials")
+    return render_template('login.html', message=message)
+
+@application.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        conn = sqlite3.connect('branding.db')
+        c = conn.cursor()
+        c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('login', message='Account Created Successfully'))
+    return render_template('signup.html')
+
+@application.route('/dashboard')
 def dashboard():
+    if 'user' not in session:
+        return redirect('/login')
     message = request.args.get('message')
     return render_template('dashboard.html', message=message)
 
-@app.route('/toggle-theme')
+@application.route('/toggle-theme')
 def toggle_theme():
     current = session.get('theme', 'light')
     session['theme'] = 'dark' if current == 'light' else 'light'
     return redirect(request.referrer or url_for('dashboard'))
 
-@app.route('/assistant', methods=['GET', 'POST'])
+@application.route('/generate', methods=['POST'])
+def generate():
+    if 'user' not in session:
+        return redirect('/login')
+
+    store_name = request.form['store_name']
+    Domain = request.form['Domain']
+    branding = generate_branding_kit(store_name, Domain)
+    branding = {k: clean_text(v) for k, v in branding.items()}
+
+    conn = sqlite3.connect('branding.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO branding (store_name, Domain, tagline, colors, logo_ideas) VALUES (?, ?, ?, ?, ?)",
+              (store_name, Domain, branding['tagline'], branding['colors'], branding['logo_ideas']))
+    conn.commit()
+    conn.close()
+
+    return render_template('result.html', branding=branding)
+
+@application.route('/assistant', methods=['GET', 'POST'])
 def branding_assistant():
+    if 'user' not in session:
+        return redirect('/login')
+
     suggestions = None
+
     if request.method == 'POST':
         brand = request.form['brand']
         domain = request.form['domain']
+
+        prompt = f"""
+        You are a branding expert. Provide branding suggestions for a brand named '{brand}' in the '{domain}' domain.
+
+        Respond in exactly this format:
+        1. Font Style & Size: [one-line suggestion]
+        2. Color Palette: [one-line suggestion]
+        3. Logo Prompt: [one-line suggestion]
+        4. Suggested Domain Name Ideas: [one-line suggestion]
+        5. Recommended Programming Languages and Technologies: [one-line suggestion]
+        """
+
+        model = genai.GenerativeModel(model_name="gemini-2.5-pro")
+        response = model.generate_content(prompt)
+        text = clean_text(response.text)
+
         suggestions = {
-            "font": "Sans-serif, 16px",
-            "colors": "Blue, White",
-            "logo_prompt": "Minimalist logo with bold initials",
-            "domain_name": "mercatica.io",
-            "languages": "Python, HTML, CSS"
+            "font": clean_text(extract_section_by_number(text, "1")),
+            "colors": clean_text(extract_section_by_number(text, "2")),
+            "logo_prompt": clean_text(extract_section_by_number(text, "3")),
+            "domain_name": clean_text(extract_section_by_number(text, "4")),
+            "languages": clean_text(extract_section_by_number(text, "5"))
         }
+
+        conn = sqlite3.connect('branding.db')
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO branding_history (
+                user, brand, domain, font, colors, logo_prompt, domain_name, languages
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            session['user'], brand, domain,
+            suggestions['font'], suggestions['colors'],
+            suggestions['logo_prompt'], suggestions['domain_name'],
+            suggestions['languages']
+        ))
+        conn.commit()
+        conn.close()
+
     return render_template('assistant.html', suggestions=suggestions)
 
-@app.route('/roadmap', methods=['GET', 'POST'])
-def roadmap():
-    roadmap = None
-    if request.method == 'POST':
-        brand = request.form['brand']
-        domain = request.form['domain']
-        roadmap = f"""Week 1: Brand Discovery\nGoal: Define brand values\nTasks: Research, Interviews\nTools: Notion, Google Docs\n\nWeek 2: Visual Identity\nGoal: Create logo and palette\nTasks: Design drafts\nTools: Figma\n\nWeek 3: Web Presence\nGoal: Build landing page\nTasks: Code, Test\nTools: Vercel, Flask\n\nWeek 4: Launch Prep\nGoal: Finalize assets\nTasks: Social media, Email\nTools: Canva, Mailchimp"""
-    return render_template('roadmap.html', roadmap=roadmap)
-
-@app.route('/analyzer', methods=['GET', 'POST'])
-def analyzer():
-    sentiment = {}
-    persona = {}
-    swot = {}
-    if request.method == 'POST':
-        brand = request.form['brand']
-        domain = request.form['domain']
-        sentiment = {
-            "Trust": 85,
-            "Excitement": 70,
-            "Elegance": 90,
-            "Boldness": 75,
-            "Friendliness": 80
-        }
-        persona = {
-            "Demographics": "18–35, urban, tech-savvy",
-            "Psychographics": "Creative, ambitious",
-            "Motivations": "Growth, recognition",
-            "Pain Points": "Lack of clarity, poor UX"
-        }
-        swot = {
-            "Strengths": "Strong branding, clear vision",
-            "Weaknesses": "Limited reach",
-            "Opportunities": "Emerging markets",
-            "Threats": "Competition"
-        }
-    return render_template('analyzer.html', sentiment=sentiment, persona=persona, swot=swot)
-
-@app.route('/personality', methods=['GET', 'POST'])
-def personality():
-    profile = None
-    if request.method == 'POST':
-        brand = request.form['brand']
-        domain = request.form['domain']
-        profile = """Emotional Tone: Empowering\nBrand Archetype: Creator\nTone of Voice: Confident, clear\nAudience Traits: Curious, driven, design-conscious"""
-    return render_template('personality.html', profile=profile)
-
-@app.route('/history')
+@application.route('/history')
 def history():
-    rows = [
-        ("Mercatica", "tech", "Sans-serif", "Blue, White", "Bold logo", "mercatica.io", "Python, HTML", "2025-11-08 20:00")
-    ]
+    if 'user' not in session:
+        return redirect('/login')
+
+    conn = sqlite3.connect('branding.db')
+    c = conn.cursor()
+    c.execute('''
+        SELECT brand, domain, font, colors, logo_prompt, domain_name, languages, timestamp
+        FROM branding_history
+        WHERE user = ?
+        ORDER BY timestamp DESC
+    ''', (session['user'],))
+    rows = c.fetchall()
+    conn.close()
+
     return render_template('history.html', history=rows)
 
-@app.route('/contact', methods=['GET', 'POST'])
+@application.route('/roadmap', methods=['GET', 'POST'])
+def roadmap():
+    if 'user' not in session:
+        return redirect('/login')
+
+    roadmap = None
+
+    if request.method == 'POST':
+        brand = request.form['brand']
+        domain = request.form['domain']
+
+        prompt = f"""
+        You are a branding strategist. Create a 30-day brand launch roadmap for a brand named '{brand}' in the '{domain}' domain.
+
+        Break it into 4 weekly milestones. For each week, include:
+        - Goal summary
+        - Key tasks
+        - Suggested tools or platforms
+        - Optional tips or reminders
+        """
+
+        model = genai.GenerativeModel(model_name="gemini-2.5-pro")
+        response = model.generate_content(prompt)
+        roadmap = clean_text(response.text)
+
+    return render_template('roadmap.html', roadmap=roadmap)
+
+@application.route('/personality', methods=['GET', 'POST'])
+def personality():
+    if 'user' not in session:
+        return redirect('/login')
+
+    profile = None
+
+    if request.method == 'POST':
+        brand = request.form['brand']
+        domain = request.form['domain']
+
+        prompt = f"""
+        You are a branding psychologist. Define the brand personality for a brand named '{brand}' in the '{domain}' domain.
+
+        Include:
+        - Emotional tone
+        - Brand archetype
+        - Suggested tone of voice
+        - Ideal audience traits
+        """
+
+        model = genai.GenerativeModel(model_name="gemini-2.5-pro")
+        response = model.generate_content(prompt)
+        profile = clean_text(response.text)
+
+    return render_template('personality.html', profile=profile)
+
+@application.route('/analyzer', methods=['GET', 'POST'])
+def analyzer():
+    if 'user' not in session:
+        return redirect('/login')
+
+    sentiment_data = {}
+    persona_data = {}
+    swot_data = {}
+
+    if request.method == 'POST':
+        brand = request.form['brand']
+        domain = request.form['domain']
+
+        model = genai.GenerativeModel(model_name="gemini-2.5-pro")
+
+        # Sentiment
+        prompt_sentiment = f"""
+        Give emotional tone scores (0–100) for brand '{brand}' in '{domain}'.
+        Include: Trust, Excitement, Elegance, Boldness, Friendliness.
+        Format as: Trust: 85, Excitement: 70, ...
+        """
+        sentiment_text = clean_text(model.generate_content(prompt_sentiment).text)
+        for line in sentiment_text.split(','):
+            if ':' in line:
+                key, val = line.strip().split(':')
+                sentiment_data[key.strip()] = int(val.strip())
+
+        # Persona
+        prompt_persona = f"""
+        Define audience persona for brand '{brand}' in '{domain}'.
+        Include: Demographics, Psychographics, Motivations, Pain Points.
+        Format as: Demographics: ..., Psychographics: ..., ...
+        """
+        persona_text = clean_text(model.generate_content(prompt_persona).text)
+        for line in persona_text.split('\n'):
+            if ':' in line:
+                key, val = line.split(':', 1)
+                persona_data[key.strip()] = val.strip()
+
+        # SWOT
+        prompt_swot = f"""
+        SWOT analysis for brand '{brand}' vs 2 competitors in '{domain}'.
+        Format as: Strengths: ..., Weaknesses: ..., ...
+        """
+        swot_text = clean_text(model.generate_content(prompt_swot).text)
+        for line in swot_text.split('\n'):
+            if ':' in line:
+                key, val = line.split(':', 1)
+                swot_data[key.strip()] = val.strip()
+
+    return render_template('analyzer.html',
+                           sentiment=sentiment_data,
+                           persona=persona_data,
+                           swot=swot_data)
+
+@application.route('/about')
+def about():
+    if 'user' not in session:
+        return redirect('/login')
+    return render_template('about.html')
+
+
+@application.route('/help')
+def help():
+    if 'user' not in session:
+        return redirect('/login')
+    return render_template('help.html')
+
+@application.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if 'user' not in session:
+        return redirect('/login')
+
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
         message = request.form['message']
-        return render_template('contact.html', success=True)
+        # You can log or store the message here if needed
+
+        return redirect(url_for('dashboard', message='Thank you !! Your message sent successfully...'))
+
     return render_template('contact.html')
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/help')
-def help():
-    return render_template('help.html')
-
-@app.route('/settings')
-def settings():
-    return render_template('settings.html')
-
-@app.route('/logout')
+@application.route('/logout')
 def logout():
     session.clear()
-    return redirect('/dashboard')
+    return redirect('/login')
 
-# -------------------- VERCEL ENTRY --------------------
+# -------------------- MAIN --------------------
 
-def handler(environ, start_response):
-    return app(environ, start_response)
+if __name__ == '__main__':
+    create_tables()
+    application.run(debug=True)
