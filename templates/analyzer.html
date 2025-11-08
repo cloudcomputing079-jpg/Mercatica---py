@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Brand Intelligence Analyzer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: {{ '#1e2a38' if theme == 'dark' else '#f4f4f4' }};
+      color: {{ '#f4f4f4' if theme == 'dark' else '#333' }};
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2.2em;
+      font-weight: 600;
+      margin-bottom: 40px;
+      color: {{ '#66bfff' if theme == 'dark' else '#007BFF' }};
+    }
+
+    form {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    input[type="text"] {
+      padding: 14px;
+      width: 260px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid {{ '#555' if theme == 'dark' else '#ccc' }};
+      background-color: {{ '#1e2a38' if theme == 'dark' else '#fff' }};
+      color: {{ '#f4f4f4' if theme == 'dark' else '#333' }};
+      font-size: 1em;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 14px 28px;
+      background: linear-gradient(to right, {{ '#66bfff' if theme == 'dark' else '#007BFF' }}, {{ '#4da6e7' if theme == 'dark' else '#0056b3' }});
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .section {
+      max-width: 850px;
+      margin: auto;
+      margin-bottom: 50px;
+      background: {{ 'linear-gradient(135deg, #2e3e50, #1e2a38)' if theme == 'dark' else 'linear-gradient(135deg, #ffffff, #f4f4f4)' }};
+      color: {{ 'white' if theme == 'dark' else '#333' }};
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .section h3 {
+      font-size: 1.5em;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: {{ '#66bfff' if theme == 'dark' else '#007BFF' }};
+      border-bottom: 2px solid {{ '#66bfff' if theme == 'dark' else '#007BFF' }};
+      padding-bottom: 6px;
+    }
+
+    canvas {
+      max-width: 600px;
+      margin: 30px auto;
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95em;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid {{ '#888' if theme == 'dark' else '#ccc' }};
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: {{ '#3a4a5e' if theme == 'dark' else '#e9f2ff' }};
+      color: {{ '#f4f4f4' if theme == 'dark' else '#333' }};
+    }
+  </style>
+</head>
+<body>
+  <h2>🧠 Brand Intelligence Analyzer</h2>
+
+  <form method="POST">
+    <input type="text" name="brand" placeholder="Brand Name" required />
+    <input type="text" name="domain" placeholder="Domain (e.g. fashion)" required />
+    <button type="submit">Run Analysis</button>
+  </form>
+
+  {% if sentiment %}
+    <div class="section">
+      <h3>📊 Brand Sentiment Radar</h3>
+      <canvas id="sentimentChart"></canvas>
+    </div>
+    <script>
+      const sentimentLabels = {{ sentiment.keys()|list|tojson }};
+      const sentimentValues = {{ sentiment.values()|list|tojson }};
+      new Chart(document.getElementById('sentimentChart'), {
+        type: 'radar',
+        data: {
+          labels: sentimentLabels,
+          datasets: [{
+            label: 'Emotional Tone',
+            data: sentimentValues,
+            backgroundColor: 'rgba(102,191,255,0.2)',
+            borderColor: 'rgba(102,191,255,1)',
+            pointBackgroundColor: 'rgba(102,191,255,1)'
+          }]
+        },
+        options: {
+          scales: { r: { beginAtZero: true, max: 100 } },
+          plugins: {
+            legend: { labels: { color: '{{ "#f4f4f4" if theme == "dark" else "#333" }}' } }
+          }
+        }
+      });
+    </script>
+  {% endif %}
+
+  {% if persona %}
+    <div class="section">
+      <h3>🎯 Audience Persona Wheel</h3>
+      <div style="margin-bottom: 20px; font-size: 1.1em;">
+        <strong>Persona Name:</strong> {{ persona.get('Audience Persona', 'Unnamed Persona') }}
+      </div>
+      <table>
+        <tbody>
+          {% for key, value in persona.items() %}
+            {% if key != 'Audience Persona' %}
+              <tr>
+                <td style="width: 180px; font-weight: 600; color: {{ '#66bfff' if theme == 'dark' else '#007BFF' }};">{{ key }}</td>
+                <td style="color: {{ '#f4f4f4' if theme == 'dark' else '#333' }};">{{ value }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if swot %}
+    <div class="section">
+      <h3>⚔️ Competitor SWOT Matrix</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>SWOT Category</th>
+            <th>Mercatica</th>
+            <th>OmniMart</th>
+            <th>CraftVerse</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Strengths</strong></td>
+            <td>Curated selection, ethical sourcing, premium brand equity</td>
+            <td>Massive inventory, fast delivery, low prices</td>
+            <td>Handmade focus, creative community, niche appeal</td>
+          </tr>
+          <tr>
+            <td><strong>Weaknesses</strong></td>
+            <td>Limited catalog, lower brand awareness, higher price points</td>
+            <td>Overwhelming choices, low trust in quality</td>
+            <td>Inconsistent product quality, low curation</td>
+          </tr>
+          <tr>
+            <td><strong>Opportunities</strong></td>
+            <td>AI personalization, exclusive partnerships, content intelligence</td>
+            <td>Private label expansion, global logistics optimization</td>
+            <td>Creator tools, community-driven campaigns</td>
+          </tr>
+          <tr>
+            <td><strong>Threats</strong></td>
+            <td>Scalability challenges, niche positioning limits growth</td>
+            <td>Saturation, price wars, regulatory scrutiny</td>
+            <td>Platform fatigue, seller churn, rising competition</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | Mercatica</title>
+  <style>
+    body {
+      background-color: {{ 'black' if theme == 'dark' else '#f4f4f4' }};
+      color: {{ 'white' if theme == 'dark' else '#333' }};
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: {{ '#2e3e50' if theme == 'dark' else '#fff' }};
+      padding: 30px;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid {{ '#555' if theme == 'dark' else '#ccc' }};
+      background-color: {{ '#1e2a38' if theme == 'dark' else '#fff' }};
+      color: {{ 'white' if theme == 'dark' else '#333' }};
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background-color: {{ '#007BFF' if theme == 'light' else '#2980b9' }};
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: {{ '#0056b3' if theme == 'light' else '#1c598a' }};
+    }
+  </style>
+</head>
+<body class="{{ theme }}-mode">
+  <div class="container">
+    <h1>Contact Us</h1>
+
+    {% if success %}
+      <script>
+        alert("Thank you !! Your message sent successfully...");
+        window.location.href = "{{ url_for('dashboard') }}";
+      </script>
+    {% endif %}
+
+    <form action="/contact" method="POST">
+      <label for="name">Your Name</label>
+      <input type="text" name="name" required />
+
+      <label for="email">Your Email</label>
+      <input type="email" name="email" required />
+
+      <label for="message">Your Message</label>
+      <textarea name="message" rows="5" required></textarea>
+
+      <button type="submit">Send Message</button>
+    </form>
+  </div>
+</body>
+</html>

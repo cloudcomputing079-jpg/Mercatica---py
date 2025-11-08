@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" class="{{ theme }}-mode">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Mercatica{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='Mercatica.jpg') }}" />
+  <style>
+    html.light-mode { background-color: #f4f4f4; color: #333; }
+    html.dark-mode { background-color: #1e2a38; color: #f4f4f4; }
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+    header {
+      background-color: {% if theme == 'dark' %}#1e2a38{% else %}#007bff{% endif %};
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .branding {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .branding img {
+      width: 60px;
+      height: auto;
+    }
+
+    .branding h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    .branding p {
+      margin: 0;
+      font-size: 0.95em;
+      color: {% if theme == 'dark' %}#ccc{% else %}#e0e0e0{% endif %};
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    main {
+      padding: 40px 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="branding">
+      <img src="{{ url_for('static', filename='Mercatica.jpg') }}" alt="Mercatica Logo" />
+      <div>
+        <h1>MERCATICA</h1>
+        <p>Conquer the Market with Mercatica</p>
+      </div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('help') }}">Help</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+        <li><a href="{{ url_for('about') }}">About Us</a></li>
+        <li><a href="{{ url_for('toggle_theme') }}">Toggle Theme</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

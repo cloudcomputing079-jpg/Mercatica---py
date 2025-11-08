@@ -1,0 +1,14 @@
+msgid "Settings"
+msgstr "அமைப்புகள்"
+
+msgid "Enable Dark Mode"
+msgstr "இருண்ட பயன்முறையை இயக்கவும்"
+
+msgid "Language Preference"
+msgstr "மொழி விருப்பம்"
+
+msgid "Save Settings"
+msgstr "அமைப்புகளை சேமிக்கவும்"
+
+msgid "Welcome to Mercatica, Conquer the World with Ease"
+msgstr "மெர்காடிகாவுக்கு வரவேற்கிறோம், உலகத்தை எளிதாக வெல்லுங்கள்"

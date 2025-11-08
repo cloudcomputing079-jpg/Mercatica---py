@@ -1,0 +1,98 @@
+# Translations template for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-11-08 01:31+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app.py:39
+msgid "Invalid credentials"
+msgstr ""
+
+#: app.py:63
+msgid "Account Created Successfully"
+msgstr ""
+
+#: app.py:123
+msgid "Settings Applied Successfully"
+msgstr ""
+
+#: templates/dashboard.html:6
+msgid "Mercatica Dashboard"
+msgstr ""
+
+#: templates/dashboard.html:132
+msgid "CONQUER THE MARKET WITH MERCATICA"
+msgstr ""
+
+#: templates/dashboard.html:138
+msgid "Dashboard"
+msgstr ""
+
+#: templates/dashboard.html:139
+msgid "Add Product"
+msgstr ""
+
+#: templates/dashboard.html:140
+msgid "Edit Product"
+msgstr ""
+
+#: templates/dashboard.html:141
+msgid "Delete Product"
+msgstr ""
+
+#: templates/dashboard.html:142
+msgid "View Product"
+msgstr ""
+
+#: templates/dashboard.html:143 templates/settings.html:6
+#: templates/settings.html:124
+msgid "Settings"
+msgstr ""
+
+#: templates/dashboard.html:144
+msgid "Logout"
+msgstr ""
+
+#: templates/dashboard.html:153
+msgid "Welcome to Mercatica, Conquer the World with Ease"
+msgstr ""
+
+#: templates/settings.html:129
+msgid "Theme"
+msgstr ""
+
+#: templates/settings.html:133
+msgid "Enable Dark Mode"
+msgstr ""
+
+#: templates/settings.html:140
+msgid "Language Preference"
+msgstr ""
+
+#: templates/settings.html:152
+msgid "AI Personalization"
+msgstr ""
+
+#: templates/settings.html:153
+msgid ""
+"Coming soon: Customize how Mercatica responds to your branding style and "
+"tone."
+msgstr ""
+
+#: templates/settings.html:156
+msgid "Save Settings"
+msgstr ""
+

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | Mercatica</title>
+  <link rel="icon" href="{{ url_for('static', filename='Mercatica.jpg') }}" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .signup-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .logo-center {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-large {
+      width: 80px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .logo-center h1 {
+      font-size: 1.8em;
+      margin: 0;
+    }
+
+    .logo-center p {
+      font-size: 0.95em;
+      color: #555;
+      margin: 5px 0 20px;
+    }
+
+    .login-container {
+      background-color: #ffffff;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .login-container h2 {
+      margin-bottom: 25px;
+      font-size: 1.6em;
+      color: #333;
+    }
+
+    form {
+      width: 100%;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .signup-link {
+      margin-top: 15px;
+      font-size: 0.95em;
+    }
+
+    .signup-link a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-page">
+    <!-- Logo and Branding -->
+    <div class="logo-center">
+      <img src="{{ url_for('static', filename='Mercatica.jpg') }}" alt="Mercatica Logo" class="logo-large" />
+      <h1>MERCATICA</h1>
+      <p>CONQUER THE MARKET WITH MERCATICA</p>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div class="login-container">
+      <h2>Create Your Mercatica Account</h2>
+      <form action="/signup" method="post">
+        <input type="text" name="name" placeholder="Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Create Password" required />
+        <button type="submit">Create Account</button>
+      </form>
+      <p class="signup-link">Already have an account? <a href="/login">Login here</a></p>
+    </div>
+  </div>
+</body>
+</html>

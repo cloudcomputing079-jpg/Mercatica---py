@@ -1,0 +1,9 @@
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='Mercatica.jpg') }}">
+</head>
+<form action="/generate" method="post">
+  <input type="text" name="store_name" placeholder="Store Name" required>
+  <input type="text" name="Domain" placeholder="Domain" required>
+  <button type="submit">Generate Branding</button>
+</form>

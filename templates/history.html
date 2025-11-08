@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Branding History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 32px;
+            letter-spacing: 1px;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .entry {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .entry:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .entry h3 {
+            margin-top: 0;
+            color: #34495e;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .entry p {
+            margin: 6px 0;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .entry p strong {
+            color: #2c3e50;
+        }
+
+        .timestamp {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 15px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h2>Your Branding History</h2>
+    <div class="history-grid">
+        {% for entry in history %}
+            <div class="entry">
+                <h3>{{ entry[0] }}</h3>
+                <p><strong>Domain:</strong> {{ entry[1] }}</p>
+                <p><strong>Font:</strong> {{ entry[2] }}</p>
+                <p><strong>Colors:</strong> {{ entry[3] }}</p>
+                <p><strong>Logo Prompt:</strong> {{ entry[4] }}</p>
+                <p><strong>Suggested Domain Name:</strong> {{ entry[5] }}</p>
+                <p><strong>Languages:</strong> {{ entry[6] }}</p>
+                <div class="timestamp"><em>Generated on {{ entry[7] }}</em></div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+/* Reset & Base */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f4f4;
+}
+
+/* Header Layout */
+.dashboard-header {
+  background-color: #1e2a38;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Logo + Brand Text */
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.logo-header {
+  width: 60px;
+  height: auto;
+}
+
+.brand-text h1 {
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.brand-text p {
+  font-size: 0.95em;
+  margin: 0;
+  color: #ccc;
+}
+
+/* Navigation Bar */
+.nav-bar ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.nav-bar li a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-bar li a:hover {
+  background-color: #2e3e50;
+}
+
+/* Main Content */
+.dashboard-main {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.dashboard-main h2 {
+  font-size: 2em;
+  color: #333;
+  margin: 0;
+}
+
+/* Login Page Layout */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.logo-center {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-large {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.logo-center h1 {
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.logo-center p {
+  font-size: 0.95em;
+  color: #555;
+  margin: 5px 0 20px;
+}
+
+/* Login Messages */
+.message-success {
+  color: green;
+  margin-bottom: 10px;
+}
+
+.message-error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-bar ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dashboard-main h2 {
+    font-size: 1.6em;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-header {
+    width: 50px;
+  }
+
+  .dashboard-main h2 {
+    font-size: 1.4em;
+    padding: 0 10px;
+  }
+
+  .logo-large {
+    width: 60px;
+  }
+
+  .logo-center h1 {
+    font-size: 1.6em;
+  }
+
+  .logo-center p {
+    font-size: 0.9em;
+  }
+}

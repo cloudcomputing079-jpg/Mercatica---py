@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help & Support | Mercatica</title>
+  <style>
+    body {
+      background-color: {{ 'black' if theme == 'dark' else '#f4f4f4' }};
+      color: {{ 'white' if theme == 'dark' else '#333' }};
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background-color: {{ '#2e3e50' if theme == 'dark' else '#fff' }};
+      padding: 30px;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h2 {
+      margin-top: 30px;
+      color: {{ '#66bfff' if theme == 'dark' else '#007BFF' }};
+    }
+    ul {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    a {
+      color: {{ '#66bfff' if theme == 'dark' else '#007BFF' }};
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="{{ theme }}-mode">
+  <div class="container">
+    <h1>Help & Support</h1>
+
+    <h2>Frequently Asked Questions</h2>
+    <ul>
+      <li>How do I generate a branding kit?</li>
+      <li>Can I save my preferences?</li>
+      <li>Is Mercatica free to use?</li>
+    </ul>
+
+    <h2>Tutorials</h2>
+    <ul>
+      <li><a href="#">Getting Started with Mercatica</a></li>
+      <li><a href="#">Customizing Your Branding Output</a></li>
+      <li><a href="#">Using Dark Mode and Settings</a></li>
+    </ul>
+
+    <h2>Need More Help?</h2>
+    <p><a href="/contact">Contact Us</a> or start a live chat (coming soon).</p>
+  </div>
+</body>
+</html>
